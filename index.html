@@ -5,6 +5,16 @@
     <title>Currency Exchange Rate</title>
 </head>
 <body>
-test
+<h1>Signal Phase Timing Information</h1>
+<div id="data"></div>
+<script>
+    const apiUrl = '\https://www.koreaexim.go.kr/site/program/financial/exchangeJSON?authkey=YNSxeKpl86OM9TcskSyWggOpzyWlSZfm&data=AP01&searchdate=2024-03-31';
+    fetch(apiUrl)
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('data').textContent = JSON.stringify(data, null, 2);
+        })
+        .catch(error => console.error('Error fetching data:', error));
+</script>
 </body>
 </html>
