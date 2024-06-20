@@ -1,0 +1,28 @@
+[
+  {
+    "result": 1,
+    "cur_unit": "AED",
+    "ttb": "367.97",
+    "tts": "375.4",
+    "deal_bas_r": "371.69",
+    "bkpr": "371",
+    "yy_efee_r": "0",
+    "ten_dd_efee_r": "0",
+    "kftc_bkpr": "371",
+    "kftc_deal_bas_r": "371.69",
+    "cur_nm": "아랍에미리트 디르함"
+  },
+  {
+    "result": 1,
+    "cur_unit": "AUD",
+    "ttb": "894.93",
+    "tts": "913",
+    "deal_bas_r": "903.97",
+    "bkpr": "903",
+    "yy_efee_r": "0",
+    "ten_dd_efee_r": "0",
+    "kftc_bkpr": "903",
+    "kftc_deal_bas_r": "903.97",
+    "cur_nm": "호주 달러"
+  }
+]

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Currency App</title>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Function to convert currency code to flag emoji
+            function currencyToFlag(currency) {
+                const currencyToCountry = {
+                    'AED': 'AE', 'AUD': 'AU', 'BHD': 'BH', 'BND': 'BN', 'CAD': 'CA',
+                    'CHF': 'CH', 'CNH': 'CN', 'DKK': 'DK', 'EUR': 'EU', 'GBP': 'GB',
+                    'HKD': 'HK', 'IDR(100)': 'ID', 'JPY(100)': 'JP', 'KRW': 'KR', 'KWD': 'KW',
+                    'MYR': 'MY', 'NOK': 'NO', 'NZD': 'NZ', 'SAR': 'SA', 'SEK': 'SE',
+                    'SGD': 'SG', 'THB': 'TH', 'USD': 'US'
+                };
+                const country = currencyToCountry[currency];
+                if (!country) return '';
+                return String.fromCodePoint(...[...country].map(c => 0x1F1E6 + c.charCodeAt(0) - 'A'.charCodeAt(0)));
+            }
+
+            // Convert all currency codes to flags
+            const currencyCells = document.querySelectorAll('.currency-code');
+            currencyCells.forEach(cell => {
+                const flag = currencyToFlag(cell.textContent);
+                if (flag) cell.textContent += ` ${flag}`;
+            });
+        });
+    </script>
+</head>
+<body>
+<h1>Currency Exchange Rates</h1>
+<table>
+    <thead>
+    <tr>
+        <th>Currency</th>
+        <th>kftc_deal_bas_r</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="currencyData : ${currencyResponse.getData()}">
+        <td th:text="${currencyData.getUnit()}" class="currency-code"></td>
+        <td th:text="${currencyData.getCurrency()}"></td>
+    </tr>
+    average : ${currencyApiResList[1]}
+    </tbody>
+</table>
+</body>
+</html>
