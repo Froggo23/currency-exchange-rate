@@ -1,5 +1,6 @@
 package com.choe.currencyapp.dto;
 
+import com.choe.currencyapp.entity.HistoryEntity;
 import lombok.Data;
 import java.util.List;
 
@@ -8,5 +9,5 @@ public class CurrencyData {
     private String unit;
     private Double currency;
     private Double dailyPercentage;
-    private List<CurrencyHistory> currencyHistoryList;
+    private List<HistoryData> historyEntityList;
 }

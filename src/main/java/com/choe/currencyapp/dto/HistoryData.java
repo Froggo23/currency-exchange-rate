@@ -2,12 +2,11 @@ package com.choe.currencyapp.dto;
 
 import lombok.Data;
 
-import java.util.List;
+import java.time.LocalDate;
 
 @Data
-public class CurrencyHistory {
+public class HistoryData {
 
     String date;
     Double value;
-
 }

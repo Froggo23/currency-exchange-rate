@@ -1,4 +1,4 @@
-package com.choe.currencyapp.dto;
+package com.choe.currencyapp.entity;
 
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
