@@ -17,5 +17,4 @@ public class CurrencyApiResponse {
     private String kftc_bkpr;
     private String kftc_deal_bas_r;
     private String cur_nm;
-
 }

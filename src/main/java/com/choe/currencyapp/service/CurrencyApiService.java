@@ -1,12 +1,11 @@
 package com.choe.currencyapp.service;
 
 
-import com.choe.currencyapp.entity.CurrencyApiResponse;
 import com.choe.currencyapp.entity.HistoryEntity;
+import com.choe.currencyapp.entity.history.HolidayEntity;
 import com.choe.currencyapp.repository.CurrencyApiRepository;
 import com.choe.currencyapp.repository.CurrencyDatabaseRepository;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.SneakyThrows;
+import com.choe.currencyapp.repository.HolidayApiRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +23,10 @@ public class CurrencyApiService {
 
     @Autowired
     CurrencyDatabaseRepository currencyDatabaseRepository;
+
+    @Autowired
+    HolidayApiRepository holidayApiRepository;
+
     public List<List<HistoryEntity>> get7days() {
         LocalDate standardDate = LocalDate.now();
         List<List<HistoryEntity>> resultList = new ArrayList<>();
@@ -33,20 +36,27 @@ public class CurrencyApiService {
             standardDate = standardDate.minusDays(daysCount);
             String formattedDate = formatDate(standardDate);
             daysCount++;
+
             //주말 체크
-            if(standardDate.getDayOfWeek() == DayOfWeek.SATURDAY ||
-                    standardDate.getDayOfWeek() ==DayOfWeek.SUNDAY){
+            if (standardDate.getDayOfWeek() == DayOfWeek.SATURDAY ||
+                    standardDate.getDayOfWeek() == DayOfWeek.SUNDAY) {
                 continue;
             }
             //이미 했는지 체크. 만약 있었으면 추가하고 스킵
-            if(currencyDatabaseRepository.countHistory(formattedDate) > 0){
+            if (currencyDatabaseRepository.countHistory(formattedDate) > 0) {
                 List<HistoryEntity> historyEntityList = currencyDatabaseRepository.getHistoryList(formattedDate);
                 resultList.add(historyEntityList);
                 continue;
             }
-
-
-
+            //공휴일 체크
+            HolidayEntity holidayEntity = holidayApiRepository.getHolidayData(formattedDate);
+            if (isHoliday(holidayEntity, formattedDate)) {
+                continue;
+            }
+            List<HistoryEntity> result = currencyApiRepository.getCurrencyData(formattedDate);
+            if (result != null) {
+                resultList.add(result);
+            }
         }
         return null;
     }
@@ -78,16 +88,16 @@ public class CurrencyApiService {
 //        return null;
 //    }
 
-
-    @SneakyThrows
-    private List<CurrencyApiResponse> parseCurrencyData(String jsonString) {
-        ObjectMapper mapper = new ObjectMapper();
-        CurrencyApiResponse[] currencyArray = mapper.readValue(jsonString, CurrencyApiResponse[].class);
-        return List.of(currencyArray);
-    }
-
     private String formatDate(LocalDate date) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         return date.format(formatter);
+    }
+
+    private boolean isHoliday(HolidayEntity holidayEntity, String date) {
+        if (holidayEntity == null || holidayEntity.getBody() == null || holidayEntity.getBody().getItems() == null) {
+            return false;
+        }
+        return holidayEntity.getBody().getItems().getItemList().stream()
+                .anyMatch(item -> date.equals(item.getLocdate()));
     }
 }

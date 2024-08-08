@@ -1,17 +1,21 @@
 package com.choe.currencyapp.repository;
 
+import com.choe.currencyapp.entity.history.HolidayEntity;
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.Unmarshaller;
 import org.springframework.stereotype.Repository;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.StringReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
 @Repository
 public class HolidayApiRepository {
 
-    public String getHolidayData(String date){
+    public HolidayEntity getHolidayData(String date){
         HttpURLConnection connection = null;
         BufferedReader reader = null;
 
@@ -32,11 +36,14 @@ public class HolidayApiRepository {
                     response.append(inputLine);
                 }
 
-                return response.toString();
+                JAXBContext context = JAXBContext.newInstance(HolidayEntity.class);
+                Unmarshaller unmarshaller = context.createUnmarshaller();
+                return (HolidayEntity) unmarshaller.unmarshal(new StringReader(response.toString()));
+
             } else {
                 System.out.println("GET request not worked");
             }
-        } catch (IOException ioException) {
+        } catch (Exception ioException) {
             ioException.printStackTrace();
         } finally {
             if (reader != null) {
