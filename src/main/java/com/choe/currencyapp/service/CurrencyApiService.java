@@ -30,12 +30,10 @@ public class CurrencyApiService {
     public List<List<HistoryEntity>> get7days() {
         LocalDate standardDate = LocalDate.now();
         List<List<HistoryEntity>> resultList = new ArrayList<>();
-        int daysCount = 0;
 
         while (resultList.size() < 7) {
-            standardDate = standardDate.minusDays(daysCount);
+            standardDate = standardDate.minusDays(1);
             String formattedDate = formatDate(standardDate);
-            daysCount++;
 
             //주말 체크
             if (standardDate.getDayOfWeek() == DayOfWeek.SATURDAY ||
@@ -56,9 +54,12 @@ public class CurrencyApiService {
             List<HistoryEntity> result = currencyApiRepository.getCurrencyData(formattedDate);
             if (result != null) {
                 resultList.add(result);
+                for (HistoryEntity historyEntity : result) {
+                    currencyDatabaseRepository.save(historyEntity.getCur_unit(), historyEntity.getKftc_deal_bas_r(), formatDate(historyEntity.getDate()));
+                }
             }
         }
-        return null;
+        return resultList;
     }
 //    public CurrencyResponse fetchAllCurrency() {
 //        LocalDate currentDate = LocalDate.now();
@@ -94,7 +95,8 @@ public class CurrencyApiService {
     }
 
     private boolean isHoliday(HolidayEntity holidayEntity, String date) {
-        if (holidayEntity == null || holidayEntity.getBody() == null || holidayEntity.getBody().getItems() == null) {
+        if (holidayEntity == null || holidayEntity.getBody() == null || holidayEntity.getBody().getItems() == null
+                || holidayEntity.getBody().getItems().getItemList() == null) {
             return false;
         }
         return holidayEntity.getBody().getItems().getItemList().stream()
