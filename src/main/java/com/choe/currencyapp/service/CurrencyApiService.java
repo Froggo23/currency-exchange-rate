@@ -29,12 +29,13 @@ public class CurrencyApiService {
 
     public List<List<HistoryEntity>> get7days() {
         LocalDate standardDate = LocalDate.now();
+        standardDate = standardDate.plusDays(1);
         List<List<HistoryEntity>> resultList = new ArrayList<>();
 
         while (resultList.size() < 7) {
             standardDate = standardDate.minusDays(1);
             String formattedDate = formatDate(standardDate);
-
+            String formattedDate2 = formatDate2(standardDate);
             //주말 체크
             if (standardDate.getDayOfWeek() == DayOfWeek.SATURDAY ||
                     standardDate.getDayOfWeek() == DayOfWeek.SUNDAY) {
@@ -48,7 +49,7 @@ public class CurrencyApiService {
             }
             //공휴일 체크
             HolidayEntity holidayEntity = holidayApiRepository.getHolidayData(formattedDate);
-            if (isHoliday(holidayEntity, formattedDate)) {
+            if (isHoliday(holidayEntity, formattedDate2)) {
                 continue;
             }
             List<HistoryEntity> result = currencyApiRepository.getCurrencyData(formattedDate);
@@ -94,12 +95,17 @@ public class CurrencyApiService {
         return date.format(formatter);
     }
 
-    private boolean isHoliday(HolidayEntity holidayEntity, String date) {
+    private String formatDate2(LocalDate date) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+        return date.format(formatter);
+    }
+
+    private boolean isHoliday(HolidayEntity holidayEntity, String formattedDate) {
         if (holidayEntity == null || holidayEntity.getBody() == null || holidayEntity.getBody().getItems() == null
                 || holidayEntity.getBody().getItems().getItemList() == null) {
             return false;
         }
         return holidayEntity.getBody().getItems().getItemList().stream()
-                .anyMatch(item -> date.equals(item.getLocdate()));
+                .anyMatch(item -> formattedDate.equals(item.getLocdate()));
     }
 }

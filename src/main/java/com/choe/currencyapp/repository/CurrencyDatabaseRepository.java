@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.sql.Date;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,11 +33,10 @@ public class CurrencyDatabaseRepository {
 
         List<HistoryEntity> historyEntityList = new ArrayList<>();
 
-
         for (Map row : rows) {
             HistoryEntity historyEntity = new HistoryEntity();
             historyEntity.setCur_unit((String) row.get("cur_unit"));
-            historyEntity.setDate((LocalDate) row.get("date"));
+            historyEntity.setDate(((Date)row.get("date")).toLocalDate());
             historyEntity.setKftc_deal_bas_r((Double) row.get("kftc_deal_bas_r"));
             historyEntityList.add(historyEntity);
         }
