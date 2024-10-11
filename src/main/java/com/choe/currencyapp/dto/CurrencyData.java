@@ -2,6 +2,8 @@ package com.choe.currencyapp.dto;
 
 import com.choe.currencyapp.entity.HistoryEntity;
 import lombok.Data;
+
+import java.util.ArrayList;
 import java.util.List;
 
 @Data

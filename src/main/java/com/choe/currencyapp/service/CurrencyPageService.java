@@ -8,10 +8,7 @@ import com.choe.currencyapp.entity.HistoryEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 @Service
@@ -32,8 +29,8 @@ public class CurrencyPageService {
                     currencyData.setUnit(curUnit);
                     currencyData.setHistoryEntityList(new ArrayList<>());
                     currencyDataMap.put(curUnit, currencyData);
-                    Double today = entity.get(0).get(j).getKftc_deal_bas_r();
-                    Double yesterday = entity.get(1).get(j).getKftc_deal_bas_r();
+                    Double today = entity.get(entity.size()-1).get(j).getKftc_deal_bas_r();
+                    Double yesterday = entity.get(entity.size()-2).get(j).getKftc_deal_bas_r();
                     currencyData.setCurrency(today);
                     currencyData.setDailyPercentage(Double.parseDouble(String.format("%.1g%n", (((today - yesterday) / yesterday) * 100))));
                 }
@@ -44,6 +41,7 @@ public class CurrencyPageService {
 
                 currencyData.getHistoryEntityList().add(historyData);
             }
+
         }
 
         return currencyResponse;

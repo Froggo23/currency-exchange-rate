@@ -19,7 +19,7 @@ public class ApiController {
     private CurrencyPageService currencyPageService;
 
     @GetMapping("/getData")
-    public CurrencyResponse getData(){
+    public CurrencyResponse getData() {
         List<List<HistoryEntity>> sevenDayList = currencyApiService.get7days();
         return currencyPageService.getCurrencyResponse(sevenDayList);
 //        CurrencyResponse currencyResponse = currencyApiService.fetchAllCurrency();

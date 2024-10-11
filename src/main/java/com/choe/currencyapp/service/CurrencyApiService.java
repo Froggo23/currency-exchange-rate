@@ -44,7 +44,7 @@ public class CurrencyApiService {
             //이미 했는지 체크. 만약 있었으면 추가하고 스킵
             if (currencyDatabaseRepository.countHistory(formattedDate) > 0) {
                 List<HistoryEntity> historyEntityList = currencyDatabaseRepository.getHistoryList(formattedDate);
-                resultList.add(historyEntityList);
+                resultList.add(0, historyEntityList);
                 continue;
             }
             //공휴일 체크
@@ -54,7 +54,7 @@ public class CurrencyApiService {
             }
             List<HistoryEntity> result = currencyApiRepository.getCurrencyData(formattedDate);
             if (result != null) {
-                resultList.add(result);
+                resultList.add(0, result);
                 for (HistoryEntity historyEntity : result) {
                     currencyDatabaseRepository.save(historyEntity.getCur_unit(), historyEntity.getKftc_deal_bas_r(), formatDate(historyEntity.getDate()));
                 }
