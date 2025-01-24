@@ -2,14 +2,17 @@ package com.choe.currencyapp.repository;
 
 import com.choe.currencyapp.entity.CurrencyApiResponse;
 import com.choe.currencyapp.entity.HistoryEntity;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.RequestEntity;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Repository;
+import org.springframework.web.client.RestTemplate;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -19,59 +22,32 @@ import java.util.List;
 public class CurrencyApiRepository {
 
     public List<HistoryEntity> getCurrencyData(String date) {
-        HttpURLConnection connection = null;
-        BufferedReader reader = null;
-
+        RestTemplate restTemplate = new RestTemplate(new HttpComponentsClientHttpRequestFactory());
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("User-Agent", "Mozilla/5.0");
+        String url = "https://www.koreaexim.go.kr/site/program/financial/exchangeJSON?authkey=YNSxeKpl86OM9TcskSyWggOpzyWlSZfm&data=AP01&searchdate=" + date;
         try {
-            URL url = new URL("https://www.koreaexim.go.kr/site/program/financial/exchangeJSON?authkey=YNSxeKpl86OM9TcskSyWggOpzyWlSZfm&data=AP01&searchdate=" + date);
-            connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestMethod("GET");
-
-            int responseCode = connection.getResponseCode();
-            if (responseCode == HttpURLConnection.HTTP_OK) {
-                reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-                String inputLine;
-                StringBuilder response = new StringBuilder();
-
-                while ((inputLine = reader.readLine()) != null) {
-                    response.append(inputLine);
-                }
-
-                ObjectMapper mapper = new ObjectMapper();
-                CurrencyApiResponse[] currencyArray = mapper.readValue(response.toString(), CurrencyApiResponse[].class);
-                List<CurrencyApiResponse> currencyApiResponseList = List.of(currencyArray);
-                List<HistoryEntity> historyEntityList = new ArrayList<>();
-                for (int i = 0; i <= currencyApiResponseList.size() - 1; i++) {
-                    HistoryEntity historyEntity = new HistoryEntity();
-                    historyEntity.setCur_unit(currencyApiResponseList.get(i).getCur_unit());
-                    historyEntity.setDate(parseDate(date));
-                    historyEntity.setKftc_deal_bas_r(Double.valueOf(currencyApiResponseList.get(i).getKftc_deal_bas_r().replace(",", "")));
-                    historyEntityList.add(historyEntity);
-                }
-
-                return historyEntityList;
-            } else {
-                System.out.println("GET request not worked");
+            RequestEntity<Void> requestEntity = new RequestEntity<>(headers, HttpMethod.GET, new URI(url));
+            ResponseEntity<CurrencyApiResponse[]> response = restTemplate.exchange(requestEntity, CurrencyApiResponse[].class);
+            CurrencyApiResponse[] currencyArray = response.getBody();
+            if (currencyArray == null) {
+                return null;
             }
-        } catch (IOException ioException) {
-            ioException.printStackTrace();
-        } finally {
-            if (reader != null) {
-                try {
-                    reader.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+            List<HistoryEntity> historyEntityList = new ArrayList<>();
+            for (CurrencyApiResponse currencyApiResponse : currencyArray) {
+                HistoryEntity historyEntity = new HistoryEntity();
+                historyEntity.setCur_unit(currencyApiResponse.getCur_unit());
+                historyEntity.setDate(parseDate(date));
+                historyEntity.setKftc_deal_bas_r(Double.valueOf(currencyApiResponse.getKftc_deal_bas_r().replace(",", "")));
+                historyEntityList.add(historyEntity);
             }
-            if (connection != null) {
-                connection.disconnect();
-            }
+            return historyEntityList;
+        } catch (URISyntaxException e) {
+            return null;
         }
-        return null;
     }
 
     private LocalDate parseDate(String dateString) {
-
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         return LocalDate.parse(dateString, formatter);
     }
